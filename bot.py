@@ -3,6 +3,7 @@ from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 import uuid
 import threading
 import time
+from flask import Flask, request
 
 API_TOKEN = '7128943021:AAG1HAjOfS4K4mN_2IBynB-Jzqh1dpUQfts'
 bot = telebot.TeleBot(API_TOKEN)
@@ -240,4 +241,21 @@ def notify_admin(user_id, monto, tipo, direccion=None):
     else:
         bot.send_message(admin_id, f"Solicitud de {tipo} pendiente:\nUsuario: {user_id}\nMonto: {monto} USDT\n\nUsa /aceptar {user_id} {tipo} o /rechazar {user_id} {tipo} para gestionar la solicitud.")
 
-bot.polling()
+# Configuración de Flask para webhooks
+app = Flask(__name__)
+
+@app.route('/' + API_TOKEN, methods=['POST'])
+def getMessage():
+    json_str = request.get_data().decode('UTF-8')
+    update = telebot.types.Update.de_json(json_str)
+    bot.process_new_updates([update])
+    return '!', 200
+
+@app.route('/')
+def webhook():
+    bot.remove_webhook()
+    bot.set_webhook(url='https://YOUR_DOMAIN/' + API_TOKEN)
+    return 'Webhook set', 200
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8443)
