@@ -254,7 +254,7 @@ def getMessage():
 @app.route('/')
 def webhook():
     bot.remove_webhook()
-    bot.set_webhook(url='https://YOUR_DOMAIN/' + API_TOKEN)
+    bot.set_webhook(url='https://growoficial.onrender.com' + API_TOKEN)
     return 'Webhook set', 200
 
 if __name__ == '__main__':
